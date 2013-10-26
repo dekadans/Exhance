@@ -1,0 +1,48 @@
+.bjson-property {
+    font-weight: bold;
+}
+
+.bjson-string {
+    color: green;
+}
+
+.bjson-string a {
+    color: green;
+}
+
+.bjson-number {
+    color: blue;
+}
+
+.bjson-boolean {
+    color: firebrick;
+}
+
+.bjson-null {
+    color: gray;
+}
+
+.bjson-wrapper {
+    font-style: italic;
+}
+
+.bjson-indent {
+}
+
+.bjson-bg {
+    display: inline-block;
+}
+
+.bjson-indenthover {
+    background-color: rgba(235, 238, 249, 1);
+}
+
+.bjson-container {
+    font-family: monospace;
+    color: #000000;
+    font-size: 10pt;
+}
+
+.bjson-inline {
+    display:inline;
+}

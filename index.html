@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>BeautifyJson</title>
+    <meta charset='utf-8'> 
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link href="jquery.beautifyjson.css" media="screen" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="jquery.beautifyjson.min.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $('#ex1').BeautifyJson();
+            
+            $('#ex2').BeautifyJson({
+                "hover" : true,
+                "links" : false,
+                "indent" : 40,
+                "wrapper" : "$('#ex2').BeautifyJson(%bjson%);"
+            });
+        });
+    </script>
+    <style type="text/css">
+        .pre {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>BeautifyJson</h1>
+    <p>
+        A jQuery plug-in that takes a JSON string and makes it colorful and easy to read.
+    </p>
+    <h4>Example:</h4>
+    <p>BeautifyJson turns this</p>
+    <div id="ex1_unparsed">{"object1" : {"innerObject" : {"string1" : "test","string2" : "moreTest","nothing" : null},"niceLinks" : ["http://google.com","http://en.wikipedia.org"],"thisIsTrue" : false},"anArray" : [42,23,15]}</div>
+    <p>into this</p>
+    <div id="ex1">{"object1" : {"innerObject" : {"string1" : "test","string2" : "moreTest","nothing" : null},"niceLinks" : ["http://google.com","http://en.wikipedia.org"],"thisIsTrue" : false},"anArray" : [42,23,15]}</div>
+    
+    <h3>Configuration</h3>
+    <p>
+        Call <span class="pre">$(element).BeautifyJson();</span> with a selector that points to a div (or any block element) containing only correctly formatted JSON.
+    </p>
+    <p>
+        After calling BeautifyJson, the plaintext is available in <span class="pre">$(element).data('bjson-plain')</span>.
+    </p>
+    <h4>Options</h4>
+    <p>
+        <strong>hover</strong>: <span class="pre">boolean</span>. Default: <span class="pre">false</span>. Enables hover-effects, like in the example below.<br>
+        <strong>links</strong>: <span class="pre">boolean</span>. Default: <span class="pre">true</span>. Whether a string that is a URL should be clickable.<br>
+        <strong>indent</strong>: <span class="pre">integer</span>. Default: <span class="pre">30</span>. The number of pixel for each indentation.<br>
+        <strong>wrapper</strong>: <span class="pre">string</span>. Default: "<span class="pre">%bjson%</span>". If the JSON should be wrapped in a function call. <span class="pre">%bjson%</span> is the placeholder for the BeautifyJson output. See example below.
+    </p>
+    <h4>Weird self-referencing example:</h4>
+    <div id="ex2">
+        {
+            "hover" : true,
+            "links" : false,
+            "indent" : 40,
+            "wrapper" : "$('#ex2').BeautifyJson(%bjson%);"
+        }
+    </div>
+    
+    <h3>Download</h3>
+    <p><a href="https://github.com/dekadans/BeautifyJson">GitHub</a></p>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
