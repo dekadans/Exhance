@@ -8,6 +8,9 @@
     <script type="text/javascript" src="jquery.beautifyjson.min.js"></script>
     <script type="text/javascript">
         $(function(){
+            $('#ex1_pre').BeautifyJson({
+                "pre" : true
+            });
             $('#ex1').BeautifyJson();
             
             $('#ex2').BeautifyJson({
@@ -33,6 +36,8 @@
     <p>BeautifyJson turns this</p>
     <div id="ex1_unparsed">{"object1" : {"innerObject" : {"string1" : "test","string2" : "moreTest","nothing" : null},"niceLinks" : ["http://google.com","http://en.wikipedia.org"],"thisIsTrue" : false},"anArray" : [42,23,15]}</div>
     <p>into this</p>
+    <div id="ex1_pre">{"object1" : {"innerObject" : {"string1" : "test","string2" : "moreTest","nothing" : null},"niceLinks" : ["http://google.com","http://en.wikipedia.org"],"thisIsTrue" : false},"anArray" : [42,23,15]}</div>
+    <p>or even this</p>
     <div id="ex1">{"object1" : {"innerObject" : {"string1" : "test","string2" : "moreTest","nothing" : null},"niceLinks" : ["http://google.com","http://en.wikipedia.org"],"thisIsTrue" : false},"anArray" : [42,23,15]}</div>
     
     <h3>Configuration</h3>
@@ -40,14 +45,18 @@
         Call <span class="pre">$(element).BeautifyJson();</span> with a selector that points to a div (or any block element) containing only correctly formatted JSON.
     </p>
     <p>
-        After calling BeautifyJson, the plaintext is available in <span class="pre">$(element).data('bjson-plain')</span>.
+        After calling BeautifyJson, the plain text JSON formatted only with newlines and tabs is available in <span class="pre">$(element).data('bjson-pre')</span>.
     </p>
     <h4>Options</h4>
     <p>
+        <strong>pre</strong>: <span class="pre">boolean</span>. Default: <span class="pre">false</span>. The JSON is displayed in a preformatted div with only newlines and tabs inserted.<br>
         <strong>hover</strong>: <span class="pre">boolean</span>. Default: <span class="pre">false</span>. Enables hover-effects, like in the example below.<br>
         <strong>links</strong>: <span class="pre">boolean</span>. Default: <span class="pre">true</span>. Whether a string that is a URL should be clickable.<br>
         <strong>indent</strong>: <span class="pre">integer</span>. Default: <span class="pre">30</span>. The number of pixel for each indentation.<br>
         <strong>wrapper</strong>: <span class="pre">string</span>. Default: "<span class="pre">%bjson%</span>". If the JSON should be wrapped in a function call. <span class="pre">%bjson%</span> is the placeholder for the BeautifyJson output. See example below.
+    </p>
+    <p>
+        To turn an element already made to contain colorful JSON into the simple preformatted kind, call <span class="pre">$(element).BeautifyJson('pre')</span>.
     </p>
     <h4>Weird self-referencing example:</h4>
     <div id="ex2">

@@ -1,5 +1,5 @@
 /*
-BeautifyJson v0.1
+BeautifyJson v0.2
 
 Copyright 2013, Tomas Thelander
 Licensed under the GNU General Public License
@@ -24,153 +24,186 @@ http://dev.tthe.se/bjson
     $.fn.BeautifyJson = function(input) {
         if (this.length == 0) return;
         
-        var options = $.extend({
-            'indent' : 30,
-            'hover' : false,
-            'links' : true,
-            'wrapper' : '%bjson%',
-            'placeholder' : '%bjson%'
-        },input);
-        
-        /* Recursive printing function */
-        var print = function(obj, comma)
+        if (typeof input == 'object' || input == null)
         {
-            /* Print [arrays] */ 
-            if (Object.prototype.toString.call(obj) === '[object Array]')
+            var options = $.extend({
+                'indent' : 30,
+                'hover' : false,
+                'links' : true,
+                'pre' : false,
+                'wrapper' : '%bjson%',
+                'placeholder' : '%bjson%'
+            },input);
+            
+            var level = 0;
+            
+            /* Recursive printing function */
+            var print = function(obj, comma)
             {
-                var string = '<div class="bjson-inline">[</div>';
-                
-                for (i = 0; i < obj.length; i++)
+                /* Print [arrays] */ 
+                if (Object.prototype.toString.call(obj) === '[object Array]')
                 {
-                    if (i == obj.length-1) appendComma = false;
-                    else appendComma = true;
+                    var string = '<div class="bjson-inline">[</div>'+"\n";
                     
-                    string += '<div class="bjson-indent" style="margin-left:'+options.indent+'px;"><span class="bjson-bg">'+ print(obj[i], appendComma) +'</span></div>';
-                }
-                string += '<div style="margin-left: 0px;" class="bjson-inline">]</div>';
-                
-                if (comma)
-                {
-                    string += ',';
-                }
-                
-                return string;
-            }
-            /* Print {objects} */
-            else if (typeof obj == 'object' && obj != null)
-            {
-                var string = '<div class="bjson-inline">{</div>';
-                
-                var count = 0;
-                for (var name in obj)
-                {
-                    if (obj.hasOwnProperty(name))
+                    level++;
+                    for (i = 0; i < obj.length; i++)
                     {
-                        count++;
-                    }
-                }
-                
-                var i = 1;
-                for (var name in obj)
-                {
-                    if (obj.hasOwnProperty(name))
-                    {
-                        if (count == i) appendComma = false;
+                        if (i == obj.length-1) appendComma = false;
                         else appendComma = true;
                         
-                        string += '<div class="bjson-indent" style="margin-left:'+options.indent+'px;"><span class="bjson-bg"><span class="bjson-property">'+ name +'</span> : '+ print(obj[name], appendComma) +'</span></div>';
+                        string += Array(level+1).join("\t")+'<div class="bjson-indent" style="margin-left:'+options.indent+'px;"><span class="bjson-bg">'+ print(obj[i], appendComma) +'</span></div>';
+                    }
+                    level--;
+                    string += Array(level+1).join("\t")+'<div style="margin-left: 0px;" class="bjson-inline">]</div>';
+                    
+                    if (comma)
+                    {
+                        string += ',';
                     }
                     
-                    i++;
+                    return string+"\n";
                 }
-                
-                string += '<div style="margin-left:0px;" class="bjson-inline">}</div>';
-                
-                if (comma) string += ',';
-                
-                return string;
-            }
-            /* Print "strings" */
-            else if (typeof obj == 'string')
-            {
-                var patternFirst = new RegExp('^https?:\\/\\/');
-                var patternFull = new RegExp('^(https?:\\/\\/)?'+ // protocol
-                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-                '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-                '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-                '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-                
-                if (!options.links)
+                /* Print {objects} */
+                else if (typeof obj == 'object' && obj != null)
                 {
-                    return '<span class="bjson-string">"'+ obj +'"</span>' + (comma ? ',' : '');
-                }
-                /* Test if the string is a http(s) link */
-                else
-                {
-                    /* The use of two regexp is for performance, so that not all string has to be checked against the complex patterFull */
-                    if (obj.match(patternFirst))
+                    var string = '<div class="bjson-inline">{</div>'+"\n";
+                    
+                    var count = 0;
+                    for (var name in obj)
                     {
-                        if (obj.match(patternFull))
+                        if (obj.hasOwnProperty(name))
                         {
-                            /* Print <a>links</a> */
-                            return '<span class="bjson-string">"<a href="'+ obj +'">'+ obj +'</a>"</span>' + (comma ? ',' : '');
+                            count++;
                         }
                     }
-                    return '<span class="bjson-string">"'+ obj +'"</span>' + (comma ? ',' : '');
+                    
+                    var i = 1;
+                    level++;
+                    for (var name in obj)
+                    {
+                        if (obj.hasOwnProperty(name))
+                        {
+                            if (count == i) appendComma = false;
+                            else appendComma = true;
+                            
+                            string += Array(level+1).join("\t")+'<div class="bjson-indent" style="margin-left:'+options.indent+'px;"><span class="bjson-bg"><span class="bjson-property">"'+ name +'"</span> : '+ print(obj[name], appendComma) +'</span></div>';
+                        }
+                        
+                        i++;
+                    }
+                    level--;
+                    
+                    string += Array(level+1).join("\t")+'<div style="margin-left:0px;" class="bjson-inline">}</div>';
+                    
+                    if (comma) string += ',';
+                    
+                    return string+"\n";
                 }
-            }
+                /* Print "strings" */
+                else if (typeof obj == 'string')
+                {
+                    var patternFirst = new RegExp('^https?:\\/\\/');
+                    var patternFull = new RegExp('^(https?:\\/\\/)?'+ // protocol
+                    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+                    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+                    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+                    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+                    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+                    
+                    if (!options.links)
+                    {
+                        return '<span class="bjson-string">"'+ obj +'"</span>' + (comma ? ',' : '')+"\n";
+                    }
+                    /* Test if the string is a http(s) link */
+                    else
+                    {
+                        /* The use of two regexp is for performance, so that not all string has to be checked against the complex patterFull */
+                        if (obj.match(patternFirst))
+                        {
+                            if (obj.match(patternFull))
+                            {
+                                /* Print <a>links</a> */
+                                return '<span class="bjson-string">"<a href="'+ obj +'">'+ obj +'</a>"</span>' + (comma ? ',' : '')+"\n";
+                            }
+                        }
+                        return '<span class="bjson-string">"'+ obj +'"</span>' + (comma ? ',' : '')+"\n";
+                    }
+                }
+                
+                /* Print numbers */
+                else if (typeof obj == 'number')
+                {
+                    return '<span class="bjson-number">' + obj.toString() + '</span>' + (comma ? ',' : '')+"\n";
+                }
+                /* Print booleans */
+                else if (typeof obj == 'boolean')
+                {
+                    return '<span class="bjson-boolean">' + obj.toString() + '</span>' + (comma ? ',' : '')+"\n";
+                }
+                /* Print null */
+                else if (typeof obj == 'object' && obj == null)
+                {
+                    return '<span class="bjson-null">null</span>' + (comma ? ',' : '')+"\n";
+                }
+                /* Unknown type */
+                else
+                {
+                    return 'undefined' + (comma ? ',' : '')+"\n";
+                }
+                
+            };
             
-            /* Print numbers */
-            else if (typeof obj == 'number')
-            {
-                return '<span class="bjson-number">' + obj.toString() + '</span>' + (comma ? ',' : '');
-            }
-            /* Print booleans */
-            else if (typeof obj == 'boolean')
-            {
-                return '<span class="bjson-boolean">' + obj.toString() + '</span>' + (comma ? ',' : '');
-            }
-            /* Print null */
-            else if (typeof obj == 'object' && obj == null)
-            {
-                return '<span class="bjson-null">null</span>' + (comma ? ',' : '');
-            }
-            /* Unknown type */
-            else
-            {
-                return 'undefined' + (comma ? ',' : '');
-            }
-            
-        };
+            this.each(function(i, e){
+                var plaintext = $(e).text();
+                
+                if ($(e).data().pre)
+                {
+                    $(e).css('white-space','normal');
+                    $(e).data('pre',false);
+                }
+                
+                try {
+                    var json = JSON.parse(plaintext);
+                }
+                catch(err) {
+                    $(e).html('Error parsing JSON.').addClass('bjson-container').css('color','red');
+                    return;
+                }
+                
+                $(e).html('<span class="bjson-bg"></span>').addClass('bjson-container');
+                var firstwrapper = options.wrapper.substr(0,options.wrapper.indexOf(options.placeholder));
+                var lastwrapper = options.wrapper.substr(options.wrapper.indexOf(options.placeholder) + options.placeholder.length);
+                var styledJson = print(json);
+                $(e).find('.bjson-bg').append('<span class="bjson-wrapper">'+ firstwrapper +'</span>' + styledJson + '<span class="bjson-wrapper">'+ lastwrapper +'</span>');
+                
+                $(e).data('bjson-pre',styledJson.replace(/(<([^>]+)>)/ig,""));
+                
+                if (options.hover)
+                {
+                    $(e).find('.bjson-bg').mouseover(function(ev){
+                        ev.stopPropagation();
+                        $(e).find('.bjson-bg').removeClass('bjson-indenthover');
+                        $(this).addClass('bjson-indenthover');
+                    }).mouseleave(function(ev){
+                        ev.stopPropagation();
+                        $(this).removeClass('bjson-indenthover');
+                    });
+                }
+                
+                if (options.pre)
+                {
+                    $(e).BeautifyJson('pre');
+                }
+            });
+        }
+        else if (input == 'pre')
+        {
+            this.each(function(i,e){
+                $(e).html($(e).data('bjson-pre')).css('white-space','pre');
+                $(e).data('pre',true);
+            });
+        }
         
-        this.each(function(i, e){
-            var plaintext = $(e).text();
-            try {
-                var json = JSON.parse(plaintext);
-            }
-            catch(err) {
-                $(e).html('Error parsing JSON.').addClass('bjson-container').css('color','red');
-                return;
-            }
-            
-            $(e).html('<span class="bjson-bg"></span>').addClass('bjson-container');
-            $(e).data('bjson-plain',plaintext);
-            var firstwrapper = options.wrapper.substr(0,options.wrapper.indexOf(options.placeholder));
-            var lastwrapper = options.wrapper.substr(options.wrapper.indexOf(options.placeholder) + options.placeholder.length);
-            $(e).find('.bjson-bg').append('<span class="bjson-wrapper">'+ firstwrapper +'</span>' + print(json) + '<span class="bjson-wrapper">'+ lastwrapper +'</span>');
-            
-            if (options.hover)
-            {
-                $(e).find('.bjson-bg').mouseover(function(ev){
-                    ev.stopPropagation();
-                    $(e).find('.bjson-bg').removeClass('bjson-indenthover');
-                    $(this).addClass('bjson-indenthover');
-                }).mouseleave(function(ev){
-                    ev.stopPropagation();
-                    $(this).removeClass('bjson-indenthover');
-                });
-            }
-        });
+        return this;
     };
 })(jQuery);
