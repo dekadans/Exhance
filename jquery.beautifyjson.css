@@ -46,3 +46,7 @@
 .bjson-inline {
     display:inline;
 }
+
+.bjson-pre {
+    white-space: pre;
+}

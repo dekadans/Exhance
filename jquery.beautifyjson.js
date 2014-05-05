@@ -1,7 +1,7 @@
 /*
-BeautifyJson v0.2
+BeautifyJson v0.2.1
 
-Copyright 2013, Tomas Thelander
+Copyright 2013, 2014, Tomas Thelander
 Licensed under the GNU General Public License
 
 http://dev.tthe.se/bjson
@@ -31,6 +31,7 @@ http://dev.tthe.se/bjson
                 'hover' : false,
                 'links' : true,
                 'pre' : false,
+                'write' : true,
                 'wrapper' : '%bjson%',
                 'placeholder' : '%bjson%'
             },input);
@@ -158,7 +159,7 @@ http://dev.tthe.se/bjson
                 
                 if ($(e).data().pre)
                 {
-                    $(e).css('white-space','normal');
+                    $(e).removeClass('bjson-pre');
                     $(e).data('pre',false);
                 }
                 
@@ -170,13 +171,18 @@ http://dev.tthe.se/bjson
                     return;
                 }
                 
-                $(e).html('<span class="bjson-bg"></span>').addClass('bjson-container');
                 var firstwrapper = options.wrapper.substr(0,options.wrapper.indexOf(options.placeholder));
                 var lastwrapper = options.wrapper.substr(options.wrapper.indexOf(options.placeholder) + options.placeholder.length);
                 var styledJson = print(json);
-                $(e).find('.bjson-bg').append('<span class="bjson-wrapper">'+ firstwrapper +'</span>' + styledJson + '<span class="bjson-wrapper">'+ lastwrapper +'</span>');
                 
-                $(e).data('bjson-pre',styledJson.replace(/(<([^>]+)>)/ig,""));
+                if (options.write)
+                {
+                    $(e).html('<span class="bjson-bg"></span>').addClass('bjson-container');
+                    $(e).find('.bjson-bg').append('<span class="bjson-wrapper">'+ firstwrapper +'</span>' + styledJson + '<span class="bjson-wrapper">'+ lastwrapper +'</span>');
+                }
+                
+                $(e).data('bjsonPre',styledJson.replace(/(<([^>]+)>)/ig,""));
+                $(e).data('bjsonObj',json);
                 
                 if (options.hover)
                 {
@@ -190,7 +196,7 @@ http://dev.tthe.se/bjson
                     });
                 }
                 
-                if (options.pre)
+                if (options.pre && options.write)
                 {
                     $(e).BeautifyJson('pre');
                 }
@@ -199,7 +205,7 @@ http://dev.tthe.se/bjson
         else if (input == 'pre')
         {
             this.each(function(i,e){
-                $(e).html($(e).data('bjson-pre')).css('white-space','pre');
+                $(e).html($(e).data('bjsonPre')).addClass('bjson-pre');
                 $(e).data('pre',true);
             });
         }

@@ -3,6 +3,7 @@
 <head>
     <title>BeautifyJson</title>
     <meta charset='utf-8'> 
+    <!-- Earliest: 1.4.2 -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <link href="jquery.beautifyjson.css" media="screen" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="jquery.beautifyjson.min.js"></script>
@@ -45,18 +46,20 @@
         Call <span class="pre">$(element).BeautifyJson();</span> with a selector that points to a div (or any block element) containing only correctly formatted JSON.
     </p>
     <p>
-        After calling BeautifyJson, the plain text JSON formatted only with newlines and tabs is available in <span class="pre">$(element).data('bjson-pre')</span>.
+        After calling BeautifyJson, the plain text JSON formatted only with newlines and tabs is available in <span class="pre">$(element).data().bjsonPre</span>.<br>
+        A JavaScript object parsed from the JSON string is available in <span class="pre">$(element).data().bjsonObj</span>.
     </p>
     <h4>Options</h4>
     <p>
-        <strong>pre</strong>: <span class="pre">boolean</span>. Default: <span class="pre">false</span>. The JSON is displayed in a preformatted div with only newlines and tabs inserted.<br>
         <strong>hover</strong>: <span class="pre">boolean</span>. Default: <span class="pre">false</span>. Enables hover-effects, like in the example below.<br>
         <strong>links</strong>: <span class="pre">boolean</span>. Default: <span class="pre">true</span>. Whether a string that is a URL should be clickable.<br>
         <strong>indent</strong>: <span class="pre">integer</span>. Default: <span class="pre">30</span>. The number of pixel for each indentation.<br>
-        <strong>wrapper</strong>: <span class="pre">string</span>. Default: "<span class="pre">%bjson%</span>". If the JSON should be wrapped in a function call. <span class="pre">%bjson%</span> is the placeholder for the BeautifyJson output. See example below.
+        <strong>pre</strong>: <span class="pre">boolean</span>. Default: <span class="pre">false</span>. The JSON is displayed in a pre-formatted div with only newlines and tabs inserted.<br>
+        <strong>wrapper</strong>: <span class="pre">string</span>. Default: "<span class="pre">%bjson%</span>". If the JSON should be wrapped in a function call. <span class="pre">%bjson%</span> is the placeholder for the BeautifyJson output. See example below.<br>
+        <strong>write</strong>: <span class="pre">boolean</span>. Default: <span class="pre">true</span>. If false, the selected element(s) will not have their contents altered, only the <span class="pre">bjsonPre</span> and <span class="pre">bjsonObj</span> data attributes will be changed.
     </p>
     <p>
-        To turn an element already made to contain colorful JSON into the simple preformatted kind, call <span class="pre">$(element).BeautifyJson('pre')</span>.
+        To turn an element already made to contain colorful JSON into the simple pre-formatted kind, call <span class="pre">$(element).BeautifyJson('pre')</span>.
     </p>
     <h4>Weird self-referencing example:</h4>
     <div id="ex2">
