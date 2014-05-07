@@ -1,0 +1,84 @@
+.exhance-property {
+    font-weight: bold;
+}
+
+.exhance-string {
+    color: green;
+}
+
+.exhance-string a {
+    color: green;
+}
+
+.exhance-number {
+    color: blue;
+}
+
+.exhance-boolean {
+    color: firebrick;
+}
+
+.exhance-null {
+    color: gray;
+}
+
+.exhance-x-lt, .exhance-x-gt, .exhance-x-tagname {
+    color: rgb(136, 18, 128);
+}
+
+.exhance-x-attrname {
+    color: rgb(153, 69, 0);
+}
+
+.exhance-x-attreq {
+    color: rgb(136, 18, 128);
+}
+
+.exhance-x-attrval, .exhance-x-attrval a {
+    color: rgb(26, 26, 166);
+}
+
+.exhance-wrapper {
+    font-style: italic;
+}
+
+.exhance-indent {
+}
+
+.exhance-bg {
+    display: inline-block;
+}
+
+.exhance-indenthover {
+    background-color: rgba(235, 238, 249, 1);
+}
+
+.exhance-container {
+    font-family: monospace;
+    color: #000000;
+    font-size: 10pt;
+}
+
+.exhance-inline {
+    display:inline;
+}
+
+.exhance-pre {
+    white-space: pre;
+}
+
+.exhance-box {
+    display: inline-block;
+    border: 1px solid #dddddd;
+    padding: 10px 10px 10px 10px;
+    background-color: #f9f9f9;
+}
+
+.exhance-menu {
+    text-align: right;
+    padding-bottom: 10px;
+}
+
+.exhance-menu, .exhance-menu a {
+    color: #666666;
+}
