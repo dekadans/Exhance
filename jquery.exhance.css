@@ -1,3 +1,11 @@
+/*
+Exhance v0.3.1
+
+http://dev.tthe.se/exhance
+
+Copyright (c) 2014 Tomas Thelander
+Licensed unde the MIT license
+*/
 .exhance-property {
     font-weight: bold;
 }
@@ -72,6 +80,7 @@
     border: 1px solid #dddddd;
     padding: 10px 10px 10px 10px;
     background-color: #f9f9f9;
+    overflow: auto;
 }
 
 .exhance-menu {
@@ -81,4 +90,8 @@
 
 .exhance-menu, .exhance-menu a {
     color: #666666;
+}
+
+.exhance-error {
+    color: #FF0000;
 }

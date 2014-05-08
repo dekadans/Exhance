@@ -1,31 +1,11 @@
 /*
-Exhance v0.3.0
+Exhance v0.3.1
 
 http://dev.tthe.se/exhance
 
-The MIT License (MIT)
-
 Copyright (c) 2014 Tomas Thelander
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Licensed unde the MIT license
 */
-
 (function($) {
     $.fn.Exhance = function(input) {
         if (this.length == 0) return;
@@ -33,6 +13,7 @@ SOFTWARE.
         if (typeof input == 'object' || input == null)
         {
             var options = $.extend({
+                'ajax' : false,
                 'box' : false,
                 'boxBlock' : false,
                 'boxMenu' : true,
@@ -203,7 +184,7 @@ SOFTWARE.
                         }
                         
                         // Building start tag, including attributes
-                        returnString += '<span class="exhance-x-lt">&lt;</span><span class="exhance-x-tagname">' + this.localName + '</span>';
+                        returnString += '<span class="exhance-x-lt">&lt;</span><span class="exhance-x-tagname">' + this.localName.replace(':exhance','') + '</span>';
                         for (var i = 0; i < this.attributes.length; i++)
                         {
                             returnString += ' <span class="exhance-x-attrname">' + this.attributes[i].name + '</span><span class="exhance-x-attreq">=</span><span class="exhance-x-attrval">"' + printString(this.attributes[i].nodeValue) + '"</span>';
@@ -221,7 +202,7 @@ SOFTWARE.
                         }
                         
                         // End tag
-                        returnString += '<span class="exhance-x-lt">&lt;/</span><span class="exhance-x-tagname">' + this.localName + '</span><span class="exhance-x-gt">&gt;</span></div></div>';
+                        returnString += '<span class="exhance-x-lt">&lt;/</span><span class="exhance-x-tagname">' + this.localName.replace(':exhance','') + '</span><span class="exhance-x-gt">&gt;</span></div></div>';
                         last = 'end';
                     }
                     xlevel--;
@@ -232,6 +213,8 @@ SOFTWARE.
             
             /* Loop through the selected elements */
             this.each(function(i, e){
+                $(e).removeClass('exhance-error');
+                
                 // Remove white-space: pre if present
                 if ($(e).data().pre)
                 {
@@ -252,7 +235,28 @@ SOFTWARE.
                     */
                     if (options.src)
                     {
-                        var plaintext = $.trim($('#'+options.src).html());
+                        if (options.ajax)
+                        {
+                            $(e).html('Retrieving data...').addClass('exhance-container');
+                            $.ajax({
+                                type: "GET",
+                                url: options.src,
+                                dataType: "text",
+                                success: function(json){
+                                    $(e).data('exhancePre',$.trim(json));
+                                    options.src = options.ajax = false;
+                                    $(e).Exhance(options);
+                                },
+                                error : function(){
+                                    $(e).html('Exhance Ajax: An error occured when retrieving data.').addClass('exhance-error');
+                                }
+                            });
+                            return;
+                        }
+                        else
+                        {
+                            var plaintext = $.trim($('#'+options.src).html());
+                        }
                     }
                     else
                     {
@@ -271,7 +275,7 @@ SOFTWARE.
                         var data = JSON.parse(plaintext);
                     }
                     catch(err) {
-                        $(e).html('Error parsing JSON.').addClass('exhance-container').css('color','red');
+                        $(e).html('Error parsing JSON.').addClass('exhance-container').addClass('exhance-error');
                         return;
                     }
                     
@@ -290,6 +294,15 @@ SOFTWARE.
                 else if (options.type == 'xml')
                 {
                     /*
+                    Strips out comments, <?XML-head and adds the :exhance suffix to certain tags that browsers remove upon jQuery parsing.
+                    */
+                    var prepXmlString = function(xmls) {
+                        return $.trim(xmls
+                        .replace(/<!--[\s\S]*?-->/g,'')
+                        .replace(/<\?[\s\S]*?\?>/g,'')
+                        .replace(/<(\/?)(html|head|body|title|base|meta|keygen|progress|source)(\s+[^>]*)?>/ig, '<$1$2:exhance$3>'));
+                    };
+                    /*
                     The XML is taken from the specified source if there is any,
                     otherwise the contents of the selected div is taken.
                     
@@ -298,7 +311,28 @@ SOFTWARE.
                     */
                     if (options.src)
                     {
-                        data = $.parseHTML('<exhance>'+$.trim($('#'+options.src).html())+'</exhance>');
+                        if (options.ajax)
+                        {
+                            $(e).html('Retrieving data...').addClass('exhance-container');
+                            $.ajax({
+                                type: "GET",
+                                url: options.src,
+                                dataType: "text",
+                                success: function(xml){
+                                    $(e).data('exhanceXml',prepXmlString(xml));
+                                    options.src = options.ajax = false;
+                                    $(e).Exhance(options);
+                                },
+                                error : function(){
+                                    $(e).html('Exhance Ajax: An error occured when retrieving data.').addClass('exhance-error');
+                                }
+                            });
+                            return;
+                        }
+                        else
+                        {
+                            data = $('<div/>').append('<exhance>'+prepXmlString($('#'+options.src).html())+'</exhance>');
+                        }
                     }
                     else
                     {
