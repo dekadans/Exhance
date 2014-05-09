@@ -1,10 +1,10 @@
 /*
-Exhance v0.3.1
+Exhance v0.3.2
 
 http://dev.tthe.se/exhance
 
 Copyright (c) 2014 Tomas Thelander
-Licensed unde the MIT license
+Licensed under the MIT license
 */
 (function($) {
     $.fn.Exhance = function(input) {
@@ -25,7 +25,8 @@ Licensed unde the MIT license
                 'src' : false,
                 'type' : 'json',
                 'wrapper' : '%exhance%',
-                'write' : true
+                'write' : true,
+                'xmlComments' : true
             },input);
             
             var printString = function(str) {
@@ -158,24 +159,39 @@ Licensed unde the MIT license
                 $(element).contents().each (function processNodes() {
                     xlevel++;
                     
+                     // The first level tag should not be indented
+                    if (xlevel > 1)
+                    {
+                        indentString = '<div class="exhance-indent" style="margin-left: '+options.indent+'px;"><div class="exhance-bg">';
+                    }
+                    else
+                    {
+                        indentString = '<div><div class="exhance-bg">';
+                    }
+                    
                     // Text node
                     if (this.nodeType == 3)
                     {
                         returnString += '<span class="exhance-x-text">' + printString(this.nodeValue) + '</span>';
                         last = 'txt';
                     }
-                    // XML tag
-                    else
+                    // CDATA
+                    else if (this.nodeType == 4)
                     {
-                        // The first level tag should not be indented
-                        if (xlevel > 1)
+                        returnString += indentString + '<span class="exhance-x-cdata">&lt;![CDATA[' + this.nodeValue.replace(/</g,'&lt;').replace(/>/g,'&gt;') + ']]&gt;</span></div></div>';
+                    }
+                    // Comment
+                    else if (this.nodeType == 8)
+                    {
+                        if (options.xmlComments)
                         {
-                            returnString += '<div class="exhance-indent" style="margin-left: '+options.indent+'px;"><div class="exhance-bg">';
+                            returnString += indentString + '<span class="exhance-x-comment">&lt;!--' + this.nodeValue + '--&gt;</span></div></div>';
                         }
-                        else
-                        {
-                            returnString += '<div><div class="exhance-bg">';
-                        }
+                    }
+                    // XML tag
+                    else if (this.nodeType == 1)
+                    {
+                        returnString += indentString;
                         
                         // Adding linebreaks and tabs at the right places
                         if ((last != 'txt' && xlevel > 1) || last == 'end')
@@ -184,7 +200,7 @@ Licensed unde the MIT license
                         }
                         
                         // Building start tag, including attributes
-                        returnString += '<span class="exhance-x-lt">&lt;</span><span class="exhance-x-tagname">' + this.localName.replace(':exhance','') + '</span>';
+                        returnString += '<span class="exhance-x-lt">&lt;</span><span class="exhance-x-tagname">' + this.tagName + '</span>';
                         for (var i = 0; i < this.attributes.length; i++)
                         {
                             returnString += ' <span class="exhance-x-attrname">' + this.attributes[i].name + '</span><span class="exhance-x-attreq">=</span><span class="exhance-x-attrval">"' + printString(this.attributes[i].nodeValue) + '"</span>';
@@ -202,7 +218,7 @@ Licensed unde the MIT license
                         }
                         
                         // End tag
-                        returnString += '<span class="exhance-x-lt">&lt;/</span><span class="exhance-x-tagname">' + this.localName.replace(':exhance','') + '</span><span class="exhance-x-gt">&gt;</span></div></div>';
+                        returnString += '<span class="exhance-x-lt">&lt;/</span><span class="exhance-x-tagname">' + this.tagName + '</span><span class="exhance-x-gt">&gt;</span></div></div>';
                         last = 'end';
                     }
                     xlevel--;
@@ -272,7 +288,7 @@ Licensed unde the MIT license
                     
                     // Attempting to parse JSON
                     try {
-                        var data = JSON.parse(plaintext);
+                        var data = $.parseJSON(plaintext);
                     }
                     catch(err) {
                         $(e).html('Error parsing JSON.').addClass('exhance-container').addClass('exhance-error');
@@ -294,14 +310,25 @@ Licensed unde the MIT license
                 else if (options.type == 'xml')
                 {
                     /*
-                    Strips out comments, <?XML-head and adds the :exhance suffix to certain tags that browsers remove upon jQuery parsing.
+                    I found it to be a better solution to use native XML parsing than the one in jQuery.
                     */
-                    var prepXmlString = function(xmls) {
-                        return $.trim(xmls
-                        .replace(/<!--[\s\S]*?-->/g,'')
-                        .replace(/<\?[\s\S]*?\?>/g,'')
-                        .replace(/<(\/?)(html|head|body|title|base|meta|keygen|progress|source)(\s+[^>]*)?>/ig, '<$1$2:exhance$3>'));
-                    };
+                    var parseXml;
+                    if (typeof window.DOMParser != "undefined") {
+                        parseXml = function(xmlStr) {
+                            return ( new window.DOMParser() ).parseFromString(xmlStr, "text/xml");
+                        };
+                    } else if (typeof window.ActiveXObject != "undefined" &&
+                           new window.ActiveXObject("Microsoft.XMLDOM")) {
+                        parseXml = function(xmlStr) {
+                            var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
+                            xmlDoc.async = "false";
+                            xmlDoc.loadXML(xmlStr);
+                            return xmlDoc;
+                        };
+                    } else {
+                        throw new Error("No XML parser found");
+                    }
+                    
                     /*
                     The XML is taken from the specified source if there is any,
                     otherwise the contents of the selected div is taken.
@@ -317,9 +344,9 @@ Licensed unde the MIT license
                             $.ajax({
                                 type: "GET",
                                 url: options.src,
-                                dataType: "text",
+                                dataType: "xml",
                                 success: function(xml){
-                                    $(e).data('exhanceXml',prepXmlString(xml));
+                                    $(e).data('exhanceObj',xml);
                                     options.src = options.ajax = false;
                                     $(e).Exhance(options);
                                 },
@@ -331,16 +358,23 @@ Licensed unde the MIT license
                         }
                         else
                         {
-                            data = $('<div/>').append('<exhance>'+prepXmlString($('#'+options.src).html())+'</exhance>');
+                            data = parseXml('<exhance>' + $('#'+options.src).html() + '</exhance>').childNodes;
                         }
                     }
                     else
                     {
-                        if ($(e).data().exhanceXml)
+                        if ($(e).data().exhanceObj)
                         {
-                            $(e).html($(e).data().exhanceXml);
+                            data = $(e).data().exhanceObj;
                         }
-                        data = $(e);
+                        else if ($(e).data().exhanceXml)
+                        {
+                            data = parseXml($(e).data().exhanceXml);
+                        }
+                        else
+                        {
+                            data = parseXml($(e).html());
+                        }
                     }
                     
                     var firstwrapper = '';
@@ -367,7 +401,7 @@ Licensed unde the MIT license
                     if (options.box)
                     {
                         $(e).html('<div class="exhance-box"><div class="exhance-menu"></div><span class="exhance-bg"></span></div>').addClass('exhance-container');
-                        $(e).find('.exhance-menu').append('<a href="#" class="showColor">Colored</a> | <a href="#" class="showPlain">Plain</a>');
+                        $(e).find('.exhance-menu').append('<a href="#" class="showColor">Colored</a><span class="menuSeparator"> | </span><a href="#" class="showPlain">Plain</a><span class="menuSeparator"> | </span><a href="#" class="minimize">Show/hide</a>');
                         
                         // If the box should be a block, i.e. 100% width, instead of inline-block
                         if (options.boxBlock)
@@ -379,7 +413,7 @@ Licensed unde the MIT license
                         $(e).find('.showColor').click(function(ev){
                             ev.preventDefault();
                             $(e).removeClass('exhance-pre');
-                            $(e).find('.exhance-bg').html(fullStyled);
+                            $(e).find('.exhance-bg:first').html(fullStyled);
                             
                             if (options.hover)
                             {
@@ -391,12 +425,19 @@ Licensed unde the MIT license
                         $(e).find('.showPlain').click(function(ev){
                             ev.preventDefault();
                             $(e).addClass('exhance-pre');
-                            $(e).find('.exhance-bg').html($(e).data().exhancePre);
+                            $(e).find('.exhance-bg:first').html($(e).data().exhancePre);
                             
                             if (options.hover)
                             {
                                 $(e).Exhance('disableHover');
                             }
+                        });
+                        
+                        // The link that minimizes the container
+                        $(e).find('.minimize').click(function(ev){
+                            ev.preventDefault();
+                            $(e).find('.exhance-bg:first').slideToggle();
+                            $(e).find(' .showColor, .showPlain, .menuSeparator').toggle();
                         });
                         
                         // If the menu should be hidden
@@ -467,6 +508,13 @@ Licensed unde the MIT license
             this.each(function(i,e){
                 $(e).find('.exhance-bg').off('mouseover').off('mouseleave');
             });
+        }
+        /*
+        Returns the raw data, formatted with newlines and tabs
+        */
+        else if (input == 'data')
+        {
+            return this.data().exhanceXml ? this.data().exhanceXml : this.data().exhancePre;
         }
         
         return this;

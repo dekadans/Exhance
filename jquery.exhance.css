@@ -1,10 +1,10 @@
 /*
-Exhance v0.3.1
+Exhance v0.3.2
 
 http://dev.tthe.se/exhance
 
 Copyright (c) 2014 Tomas Thelander
-Licensed unde the MIT license
+Licensed under the MIT license
 */
 .exhance-property {
     font-weight: bold;
@@ -46,6 +46,18 @@ Licensed unde the MIT license
     color: rgb(26, 26, 166);
 }
 
+.exhance-x-text {
+    color: #000000;
+}
+
+.exhance-x-comment {
+    color: rgb(35, 110, 37);
+}
+
+.exhance-x-cdata {
+    color: #CC0066;
+}
+
 .exhance-wrapper {
     font-style: italic;
 }
@@ -85,7 +97,6 @@ Licensed unde the MIT license
 
 .exhance-menu {
     text-align: right;
-    padding-bottom: 10px;
 }
 
 .exhance-menu, .exhance-menu a {
