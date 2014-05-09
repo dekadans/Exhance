@@ -1,0 +1,27 @@
+{
+    "name": "exhance",
+    "title": "Exhance",
+    "description": "A simple jQuery plugin that takes a JSON or XML string and makes it colorful and easy to read.",
+    "keywords": [
+        "JSON",
+        "XML",
+        "jQuery",
+        "ui"
+    ],
+    "version": "1.0.0",
+    "author": {
+        "name": "Tomas Thelander",
+        "url": "http://www.tthe.se"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/dekadans/Exhance/blob/master/LICENSE.txt"
+        }
+    ],
+    "bugs": "https://github.com/dekadans/Exhance/issues",
+    "homepage": "http://dev.tthe.se/exhance/",
+    "dependencies": {
+        "jquery": ">=1.4.2"
+    }
+}

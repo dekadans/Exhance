@@ -1,5 +1,5 @@
 /*
-Exhance v0.3.2
+Exhance v1.0.0
 
 http://dev.tthe.se/exhance
 
